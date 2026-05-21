@@ -24,11 +24,20 @@ router.get('/', validateChaptersQuery, async (req, res) => {
         'mathematics': 'Mathematics',
         'science': 'Science',
         'english': 'English',
+        'english supplementary': 'English Supplementary',
         'hindi': 'Hindi',
+        'hindi supplementary': 'Hindi Supplementary',
         'social': 'Social Science',
         'social science': 'Social Science',
         'evs': 'EVS',
-        'environmental studies': 'EVS'
+        'environmental studies': 'EVS',
+        'physics': 'Physics',
+        'chemistry': 'Chemistry',
+        'biology': 'Biology',
+        'history': 'History',
+        'geography': 'Geography',
+        'political science': 'Political Science',
+        'economics': 'Economics',
       };
       const mappedSubject = subjectMap[subject.toLowerCase()] || subject;
       query = query.eq('subject', mappedSubject);
@@ -49,6 +58,34 @@ router.get('/', validateChaptersQuery, async (req, res) => {
     res.json({ chapters: data || [] });
   } catch (err) {
     console.error(`[${new Date().toISOString()}] GET /api/chapters error:`, err.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+// GET /subjects — list available subjects for a class
+router.get('/subjects', async (req, res) => {
+  try {
+    const { class: classNum } = req.query;
+    if (!classNum) {
+      return res.status(400).json({ error: 'class param required' });
+    }
+
+    const { data, error } = await supabase
+      .from('chapters')
+      .select('subject')
+      .eq('class_num', parseInt(classNum))
+      .order('subject');
+
+    if (error) {
+      console.error(`[${new Date().toISOString()}] Subjects query error:`, error.message);
+      return res.status(500).json({ error: 'Failed to fetch subjects' });
+    }
+
+    // Return unique subjects
+    const subjects = [...new Set((data || []).map(r => r.subject))];
+    res.json({ subjects });
+  } catch (err) {
+    console.error(`[${new Date().toISOString()}] GET /api/chapters/subjects error:`, err.message);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

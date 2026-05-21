@@ -53,6 +53,12 @@ const ncertCatalog = [
   { bookCode: 'gess2', classNum: 7, subject: 'Social Science', bookTitle: 'Our Environment', maxChapters: 9, subSubject: 'Geography' },
   { bookCode: 'gess3', classNum: 7, subject: 'Social Science', bookTitle: 'Social and Political Life II', maxChapters: 9, subSubject: 'Political Science' },
   { bookCode: 'gegp1', classNum: 7, subject: 'Social Science', bookTitle: 'Geography Practical', maxChapters: 10, subSubject: 'Geography' },
+  { bookCode: 'gecu1', classNum: 7, subject: 'Science', bookTitle: 'Curiosity (Science)', maxChapters: 12, subSubject: null },
+  { bookCode: 'gekb1', classNum: 7, subject: 'English', bookTitle: 'English', maxChapters: 7, subSubject: null },
+  { bookCode: 'geky1', classNum: 7, subject: 'English', bookTitle: 'English Textbook', maxChapters: 12, subSubject: null },
+  { bookCode: 'gekr1', classNum: 7, subject: 'Social Science', bookTitle: 'Knowledge Tradition', maxChapters: 18, subSubject: 'History' },
+  { bookCode: 'gepr1', classNum: 7, subject: 'Social Science', bookTitle: 'Exploring Society', maxChapters: 12, subSubject: 'History' },
+  { bookCode: 'gegp2', classNum: 7, subject: 'Social Science', bookTitle: 'Geography Part 2', maxChapters: 10, subSubject: 'Geography' },
 
   // ─── Class 8 ────────────────────────────────────────────────────────────────
   { bookCode: 'hemh1', classNum: 8, subject: 'Mathematics', bookTitle: 'Mathematics', maxChapters: 16, subSubject: null },
@@ -62,6 +68,12 @@ const ncertCatalog = [
   { bookCode: 'hess3', classNum: 8, subject: 'Social Science', bookTitle: 'Resources and Development', maxChapters: 6, subSubject: 'Geography' },
   { bookCode: 'hess4', classNum: 8, subject: 'Social Science', bookTitle: 'Social and Political Life III', maxChapters: 10, subSubject: 'Political Science' },
   { bookCode: 'hegp1', classNum: 8, subject: 'Social Science', bookTitle: 'Geography Practical', maxChapters: 8, subSubject: 'Geography' },
+  { bookCode: 'heky1', classNum: 8, subject: 'English', bookTitle: 'English Textbook', maxChapters: 12, subSubject: null },
+  { bookCode: 'hekb1', classNum: 8, subject: 'English', bookTitle: 'English', maxChapters: 12, subSubject: null },
+  { bookCode: 'hekr1', classNum: 8, subject: 'English', bookTitle: 'English Supplementary', maxChapters: 12, subSubject: null },
+  { bookCode: 'heih1', classNum: 8, subject: 'English', bookTitle: 'It So Happened', maxChapters: 10, subSubject: null },
+  { bookCode: 'hecu1', classNum: 8, subject: 'Science', bookTitle: 'Curiosity (Science)', maxChapters: 12, subSubject: null },
+  { bookCode: 'hepr1', classNum: 8, subject: 'Social Science', bookTitle: 'Exploring Society', maxChapters: 12, subSubject: 'History' },
 
   // ─── Class 9 ────────────────────────────────────────────────────────────────
   { bookCode: 'iemr1', classNum: 9, subject: 'English', bookTitle: 'Mridang', maxChapters: 12, subSubject: null },

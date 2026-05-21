@@ -85,6 +85,79 @@ async function downloadChapterPdf(bookCode, chapterNum) {
   }
 }
 
+/**
+ * Extracts a meaningful chapter title from PDF text.
+ * Tries multiple strategies to find the actual chapter heading.
+ */
+function extractChapterTitle(text, chapterNum) {
+  const lines = text.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  
+  // Patterns to skip (common PDF header/footer junk)
+  const junkPatterns = [
+    /^\d+$/,                          // Just a page number
+    /^\d+\s+\d{4}-\d{2,4}$/,          // "47 2024-25"
+    /reprint\s+\d{4}/i,               // "Reprint 2024-25"
+    /^\s*ncert/i,                      // "NCERT"
+    /^\s*©/,                           // Copyright
+    /^\s*class\s*$/i,                  // Just "Class"
+    /isbn/i,                           // ISBN numbers
+    /^unit\s+\d+$/i,                   // "Unit 4"
+    /^\s*\d{4}-\d{2,4}\s*$/,          // "2024-25"
+    /^contents?$/i,                    // "Contents"
+    /national council/i,               // NCERT full name
+    /textbook/i,                       // Book descriptors
+    /^chapter$/i,                      // Just "chapter" alone
+    /all rights reserved/i,
+    /published by/i,
+    /printed in india/i,
+  ];
+  
+  function isJunk(line) {
+    return junkPatterns.some(p => p.test(line));
+  }
+  
+  // Strategy 1: Look for "Chapter N: Title" or "Chapter N — Title" pattern
+  for (let i = 0; i < Math.min(lines.length, 30); i++) {
+    const match = lines[i].match(/chapter\s*\d+\s*[:\-—–.]\s*(.+)/i);
+    if (match && match[1].trim().length >= 3 && match[1].trim().length <= 200) {
+      return match[1].trim();
+    }
+  }
+  
+  // Strategy 2: Look for "N. Title" or "N Title" at start of line
+  for (let i = 0; i < Math.min(lines.length, 20); i++) {
+    const match = lines[i].match(new RegExp(`^${chapterNum}\\s*[.:\\-—–]\\s*(.+)`, 'i'));
+    if (match && match[1].trim().length >= 3 && match[1].trim().length <= 200 && !isJunk(match[1])) {
+      return match[1].trim();
+    }
+  }
+  
+  // Strategy 3: Find the first non-junk line that looks like a title
+  //   (between 5-150 chars, not all numbers, not too many special chars)
+  for (let i = 0; i < Math.min(lines.length, 25); i++) {
+    const line = lines[i];
+    if (line.length < 5 || line.length > 150) continue;
+    if (isJunk(line)) continue;
+    if (/^[\d\s.]+$/.test(line)) continue;  // All numbers/dots
+    if ((line.match(/[^a-zA-Z0-9\s]/g) || []).length > line.length * 0.3) continue; // Too many special chars
+    
+    // Clean up: remove leading "Chapter N" prefix
+    let cleaned = line.replace(/^chapter\s*\d+\s*/i, '').trim();
+    if (cleaned.length < 3) continue;
+    
+    // Remove trailing page numbers or year references
+    cleaned = cleaned.replace(/\s+\d{1,3}\s+\d{4}-\d{2,4}\s*$/, '').trim();
+    cleaned = cleaned.replace(/\s+\d{1,3}\s*$/, '').trim();
+    
+    if (cleaned.length >= 3 && cleaned.length <= 200) {
+      return cleaned;
+    }
+  }
+  
+  // Fallback: generic title
+  return `Chapter ${chapterNum}`;
+}
+
 async function processBook(book) {
   console.log(`\n📚 Processing: Class ${book.classNum} ${book.subject}${book.subSubject ? ` (${book.subSubject})` : ''} — ${book.bookTitle} [${book.bookCode}]`);
   
@@ -116,11 +189,7 @@ async function processBook(book) {
         continue;
       }
       
-      // Build chapter title from first line or use generic
-      const firstLine = text.split('\n')[0]?.trim() || '';
-      const chapterTitle = firstLine.length > 10 && firstLine.length < 200
-        ? firstLine.replace(/^chapter\s*\d+\s*/i, '').trim()
-        : `Chapter ${ch}`;
+      const chapterTitle = extractChapterTitle(text, ch);
       
       const displaySubject = book.subSubject
         ? `${book.subject} - ${book.subSubject}`

@@ -23,12 +23,13 @@ function del(key) {
 }
 
 // Demo chapters to pre-cache on startup
+// These match the seeded NCERT data (Classes 1-8, English-medium)
 const DEMO_CHAPTERS = [
-  { classNum: 5, subject: 'Science', chapterNum: 2 },
-  { classNum: 5, subject: 'Science', chapterNum: 3 },
   { classNum: 6, subject: 'Science', chapterNum: 1 },
-  { classNum: 5, subject: 'Mathematics', chapterNum: 1 },
-  { classNum: 4, subject: 'English', chapterNum: 1 }
+  { classNum: 6, subject: 'Mathematics', chapterNum: 1 },
+  { classNum: 7, subject: 'Science', chapterNum: 1 },
+  { classNum: 8, subject: 'Science', chapterNum: 1 },
+  { classNum: 8, subject: 'Mathematics', chapterNum: 1 }
 ];
 
 async function warmCache() {

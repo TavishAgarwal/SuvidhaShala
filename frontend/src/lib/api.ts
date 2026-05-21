@@ -68,6 +68,13 @@ export async function getChapters(params?: {
   return data.chapters || [];
 }
 
+export async function getSubjects(classNum: number): Promise<string[]> {
+  const res = await fetch(`${API_URL}/api/chapters/subjects?class=${classNum}`);
+  if (!res.ok) throw new Error('Failed to fetch subjects');
+  const data = await res.json();
+  return data.subjects || [];
+}
+
 export async function generateWorksheet(params: {
   source: 'library' | 'upload' | 'camera';
   chapterId?: string;

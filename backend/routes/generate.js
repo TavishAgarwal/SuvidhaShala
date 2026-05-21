@@ -127,9 +127,29 @@ router.post('/', (req, res) => {
           });
         }
 
-        // Extract text
+        // Extract text from content_json
         const sections = ch.content_json?.sections || [];
-        chapterText = sections.map(s => `${s.heading}\n${s.content}`).join('\n\n');
+        chapterText = sections.map(s => `${s.heading}\n${s.content}`).join('\n\n').trim();
+
+        // If content_json is empty/insufficient, build a topic-based prompt from metadata
+        if (chapterText.length < 100) {
+          const objectives = (ch.learning_objectives || []).map((o, i) => `${i + 1}. ${o}`).join('\n');
+          const bookTitle = ch.content_json?.bookTitle || ch.subject;
+          chapterText = [
+            `Subject: ${ch.subject}`,
+            `Class: ${ch.class_num}`,
+            `Chapter ${ch.chapter_num}: ${ch.chapter_title}`,
+            `Book: ${bookTitle}`,
+            `Language: ${language}`,
+            '',
+            `This is a chapter titled "${ch.chapter_title}" from the NCERT ${ch.subject} textbook for Class ${ch.class_num}.`,
+            '',
+            objectives ? `Learning Objectives:\n${objectives}` : '',
+            '',
+            `Please generate a comprehensive worksheet for this chapter covering the key concepts, `,
+            `vocabulary, comprehension questions, and activities appropriate for Class ${ch.class_num} students.`,
+          ].filter(Boolean).join('\n');
+        }
 
       // ---- SOURCE: UPLOAD ----
       } else if (source === 'upload') {
@@ -287,7 +307,7 @@ router.post('/', (req, res) => {
       console.error(`[${new Date().toISOString()}] POST /api/generate error:`, err.message);
 
       // Update job status to failed
-      await supabase.from('generation_jobs').update({ status: 'failed' }).eq('id', jobId).catch(() => {});
+      try { await supabase.from('generation_jobs').update({ status: 'failed' }).eq('id', jobId); } catch (_) {}
 
       res.status(500).json({
         error: 'Generation failed. Please try again.',

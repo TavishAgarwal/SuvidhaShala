@@ -4,7 +4,7 @@ import {
   BookOpen, Upload, Camera, Sparkles,
   CheckCircle2, Circle, Download, Share2, ChevronDown, Maximize2, X, AlertTriangle, FileText
 } from 'lucide-react';
-import { getChapters, generateWorksheet, getDownloadUrl, type Chapter, type GenerateResponse } from '../../lib/api';
+import { getChapters, getSubjects, generateWorksheet, getDownloadUrl, type Chapter, type GenerateResponse } from '../../lib/api';
 import DOMPurify from 'dompurify';
 
 // HTML sanitization to prevent XSS from AI-generated content (Fix 2 — CRITICAL)
@@ -43,10 +43,27 @@ export function GeneratorPageFinal() {
 
   // New state for API integration
   const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [subjects, setSubjects] = useState<string[]>([]);
+  const [subjectsLoading, setSubjectsLoading] = useState(false);
   const [generationResult, setGenerationResult] = useState<GenerateResponse | null>(null);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Load available subjects when class changes
+  useEffect(() => {
+    if (selectedClass) {
+      setSubjectsLoading(true);
+      getSubjects(parseInt(selectedClass))
+        .then(setSubjects)
+        .catch(() => setSubjects([]))
+        .finally(() => setSubjectsLoading(false));
+    } else {
+      setSubjects([]);
+    }
+    setSelectedSubject('');
+    setSelectedChapter('');
+  }, [selectedClass]);
 
   // Load chapters when class or subject changes
   useEffect(() => {
@@ -196,15 +213,12 @@ export function GeneratorPageFinal() {
                     value={selectedSubject}
                     onChange={(e) => setSelectedSubject(e.target.value)}
                     className="w-full h-12 px-4 pr-10 border border-[#D0D8E4] rounded-lg text-[15px] leading-[24px] text-[#1D1B20] bg-[#F7FAFC] focus:outline-none focus:ring-2 focus:ring-[#2D9B87]/30 appearance-none disabled:opacity-50"
-                    disabled={!selectedClass}
+                    disabled={!selectedClass || subjectsLoading}
                   >
-                    <option value="">Select Subject</option>
-                    <option value="mathematics">Mathematics</option>
-                    {parseInt(selectedClass) >= 6 && <option value="science">Science</option>}
-                    {parseInt(selectedClass) >= 1 && parseInt(selectedClass) <= 5 && <option value="evs">EVS</option>}
-                    <option value="english">English</option>
-                    <option value="hindi">Hindi</option>
-                    {parseInt(selectedClass) >= 6 && <option value="social">Social Science</option>}
+                    <option value="">{subjectsLoading ? 'Loading subjects…' : 'Select Subject'}</option>
+                    {subjects.map(subj => (
+                      <option key={subj} value={subj}>{subj}</option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-[#6B7280] pointer-events-none" />
                 </div>
